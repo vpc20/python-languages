@@ -41,20 +41,40 @@ class NFA:
 
 
 # Example usage
-num_states = 6
-alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g'}
-transitions = {('a', ('0', '1')): 'a',
-               ('a', ''): {'b', 'e'},
-               ('b', '0'): 'c',
-               ('c', '1'): 'd',
-               ('e', '1'): 'f',
-               ('f', '0'): 'g'}
-start_state = 'a'
-accept_states = {'d', 'g'}
+# num_states = 6
+# alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g'}
+# transitions = {('a', ('0', '1')): 'a',
+#                ('a', ''): {'b', 'e'},
+#                ('b', '0'): 'c',
+#                ('c', '1'): 'd',
+#                ('e', '1'): 'f',
+#                ('f', '0'): 'g'}
+# start_state = 'a'
+# accept_states = {'d', 'g'}
 
-nfa = NFA(num_states, alphabet, transitions, start_state, accept_states)
+# nfa = NFA(3,
+#           {'0', '1'},
+#           {(0, '0'): {0},
+#            (0, '1'): {0, 1},
+#            (1, '0'): {2},
+#            (1, '1'): {2}},
+#           0,
+#           {2})
+# input_string = "1011010"
 
-input_string = "1010"
+nfa = NFA(7,
+          {'0', '1'},
+          {('a', '0'): {'a'},
+           ('a', '1'): {'a'},
+           ('a', ''): {'b', 'e'},
+           ('b', '0'): {'c'},
+           ('c', '1'): {'d'},
+           ('e', '1'): {'f'},
+           ('f', '0'): {'g'}},
+          'a',
+          {'d', 'g'})
+input_string = "01"
+
 if nfa.accepts(input_string):
     print(f"The NFA accepts the input string '{input_string}'")
 else:
