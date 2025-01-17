@@ -13,6 +13,8 @@ class NonDeterministicFiniteAutomaton:
             for state in current_states:
                 to_states = self.transitions[(state, c)] if (state, c) in self.transitions else set()
                 new_current_states.update(to_states)
+                to_states_null = self.transitions[(state, '')] if (state, '') in self.transitions else set()
+                new_current_states.update(to_states_null)
             current_states = new_current_states
         # return (current_states & self.accept_states) != set()  # check intersection of states
         return bool(current_states.intersection(self.accept_states))
@@ -30,7 +32,7 @@ nfa = NonDeterministicFiniteAutomaton({'a', 'b', 'c', 'd', 'e', 'f', 'g'},
                                        ('f', '0'): {'g'}},
                                       {'a'},
                                       {'d', 'g'})
-print(nfa.accepts('1010'))
+print(nfa.accepts('1011'))
 
 #  string with penultimate symbol of 1
 # nfa = NonDeterministicFiniteAutomaton({0, 1, 2},
