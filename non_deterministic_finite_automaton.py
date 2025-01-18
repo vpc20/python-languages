@@ -6,6 +6,14 @@ class NonDeterministicFiniteAutomaton:
         self.start_states = start_states  # set of start states
         self.accept_states = accept_states  # set of accept states
 
+    def __repr__(self):
+        return f'''NonDeterministic Finite Automaton Definition
+   Set of finite states: {self.states}  
+   Input alphabet: {self.alphabet}  
+   Transition functions: {self.transitions}  
+   Start states: {self.start_states}  
+   Accept states: {self.accept_states}'''
+
     def null_transition(self, c, state):
         to_states_null = self.transitions[(state, '')] if (state, '') in self.transitions else set()
         new_current_states_null = set()
@@ -41,6 +49,7 @@ if __name__ == '__main__':
                                           {'a'},
                                           {'d', 'g'})
     print(nfa.accepts('01'))
+    print(nfa)
 
     #  string with penultimate symbol of 1
     # nfa = NonDeterministicFiniteAutomaton({0, 1, 2},

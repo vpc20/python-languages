@@ -6,6 +6,14 @@ class DeterministicFiniteAutomaton:
         self.start_state = start_state  # start state
         self.accept_states = accept_states  # accept/final states
 
+    def __repr__(self):
+        return f'''Deterministic Finite Automaton Definition
+   Set of finite states: {self.states}  
+   Input alphabet: {self.alphabet}  
+   Transition functions: {self.transitions}  
+   Start state: {self.start_state}  
+   Accept state: {self.accept_states}'''
+
     def accepts(self, s):
         curr_state = self.start_state
         for c in s:
@@ -31,3 +39,5 @@ if __name__ == '__main__':
     print(dfa.accepts('0101'))
     print(dfa.accepts('1010'))
     print(dfa.accepts('101010'))
+
+    print(dfa)
