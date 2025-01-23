@@ -11,20 +11,23 @@
 import sys
 
 # Define token types
-NUMBER, STRING, TRUE, FALSE, NIL, PLUS, MINUS, STAR, SLASH, \
-    EQUAL_EQUAL, BANG_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, \
-    BANG, LEFT_PAREN, RIGHT_PAREN, IDENTIFIER, EOF = (
-    'NUMBER', 'STRING', 'TRUE', 'FALSE', 'NIL', 'PLUS', 'MINUS', 'STAR', 'SLASH',
-    'EQUAL_EQUAL', 'BANG_EQUAL', 'LESS', 'LESS_EQUAL', 'GREATER', 'GREATER_EQUAL',
-    'BANG', 'LEFT_PAREN', 'RIGHT_PAREN', 'IDENTIFIER', 'EOF'
-)
+# NUMBER, STRING, TRUE, FALSE, NIL, PLUS, MINUS, STAR, SLASH, \
+#     EQUAL_EQUAL, BANG_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, \
+#     BANG, LEFT_PAREN, RIGHT_PAREN, IDENTIFIER, EOF = (
+#     'NUMBER', 'STRING', 'TRUE', 'FALSE', 'NIL', 'PLUS', 'MINUS', 'STAR', 'SLASH',
+#     'EQUAL_EQUAL', 'BANG_EQUAL', 'LESS', 'LESS_EQUAL', 'GREATER', 'GREATER_EQUAL',
+#     'BANG', 'LEFT_PAREN', 'RIGHT_PAREN', 'IDENTIFIER', 'EOF')
+NUMBER, PLUS, MINUS, STAR, SLASH, \
+    LEFT_PAREN, RIGHT_PAREN, END = (
+    'NUMBER', 'PLUS', 'MINUS', 'STAR', 'SLASH',
+    'LEFT_PAREN', 'RIGHT_PAREN', 'END')
 
-single_char_tokens = {'(': 'LEFT_PAREN',
-                      ')': 'RIGHT_PAREN',
-                      '+': 'PLUS',
-                      '-': 'MINUS',
-                      '*': 'STAR',
-                      '/': 'SLASH'}
+single_char_tokens = {'(': LEFT_PAREN,
+                      ')': RIGHT_PAREN,
+                      '+': PLUS,
+                      '-': MINUS,
+                      '*': STAR,
+                      '/': SLASH}
 
 
 # Token class
@@ -89,6 +92,7 @@ class Lexer:
                 print(f'Error: Unexpected character: {self.char}', file=sys.stderr)
                 exit(1)
             self.advance()
+        self.tokens.append(Token(END, None))
 
 
 class Parser:
@@ -103,32 +107,14 @@ class Parser:
         if self.current_token.type == token_type:
             self.token_idx += 1
             self.current_token = self.tokens[self.token_idx]
-        else:
-            # raise Exception(f"Unexpected token: {self.current_token}")
-            # print(f"[line {self.current_token.line}] Error at '{self.current_token.lexeme}': Expect expression.")
-            self.exit_code = 65
-            exit(self.exit_code)
+        # else:
+        #     raise Exception(f"Unexpected token: {self.current_token}")
+        # print(f"[line {self.current_token.line}] Error at '{self.current_token.lexeme}': Expect expression.")
+        # self.exit_code = 65
+        # exit(self.exit_code)
 
     def expression(self):
-        return self.equality()
-
-    def equality(self):
-        expr = self.comparison()
-        while self.current_token.type in (BANG_EQUAL, EQUAL_EQUAL):
-            operator = self.current_token
-            self.eat(operator.type)
-            right = self.comparison()
-            expr = f"({operator.lexeme} {expr} {right})"
-        return expr
-
-    def comparison(self):
-        expr = self.term()
-        while self.current_token.type in (LESS, LESS_EQUAL, GREATER, GREATER_EQUAL):
-            operator = self.current_token
-            self.eat(operator.type)
-            right = self.term()
-            expr = f"({operator.lexeme} {expr} {right})"
-        return expr
+        return self.term()
 
     def term(self):
         expr = self.factor()
@@ -136,11 +122,7 @@ class Parser:
             operator = self.current_token
             self.eat(operator.type)
             right = self.factor()
-            if right is None:
-                self.exit_code = 65
-                exit(self.exit_code)
-            else:
-                expr = f"({operator.lexeme} {expr} {right})"
+            expr = f"({operator.value} {expr} {right})"
         return expr
 
     def factor(self):
@@ -149,42 +131,43 @@ class Parser:
             operator = self.current_token
             self.eat(operator.type)
             right = self.unary()
-            expr = f"({operator.lexeme} {expr} {right})"
+            expr = f"({operator.value} {expr} {right})"
         return expr
 
     def unary(self):
-        if self.current_token.type in (BANG, MINUS):
+        if self.current_token.type == MINUS:
             operator = self.current_token
             self.eat(operator.type)
             right = self.unary()
-            return f"({operator.lexeme} {right})"
+            return f"({operator.value} {right})"
         return self.primary()
 
     def primary(self):
         token = self.current_token
         if token.type == NUMBER:
             self.eat(NUMBER)
-            return token.literal
-        elif token.type == STRING:
-            self.eat(STRING)
-            return token.literal
+            return token.value
         elif token.type == LEFT_PAREN:
             self.eat(LEFT_PAREN)
             expr = self.expression()
             self.eat(RIGHT_PAREN)
             return f"(group {expr})"
-        elif token.type in (TRUE, FALSE, NIL):
-            self.eat(token.type)
-            return token.lexeme
+        else:
+            raise Exception(f'Unexpected token: ', self.current_token)
 
 
 def main():
-    # text = '1 + 1'
-    text = '(1 + 1) * (2 + 3)'
+    text = '1 + 1  '
+    # text = '(1 + 1)'
+    # text = '(1 + 1) * (2 + 3)'
+    # text = '(1 + 1) * (2 + (3 - 1) / 5)'
     lexer = Lexer(text)
     lexer.scan_tokens()
     for token in lexer.tokens:
         print(token)
+
+    parser = Parser(lexer.tokens)
+    print(parser.expression())
 
 
 if __name__ == "__main__":
